@@ -114,4 +114,89 @@ public class SolicitudesController : Controller
 
         return View(solicitud);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        var usuarioId = _userManager.GetUserId(User);
+        if (usuarioId is null)
+        {
+            return Challenge();
+        }
+
+        var cliente = await _context.Clientes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+
+        if (cliente is null)
+        {
+            ModelState.AddModelError(string.Empty, "No existe un cliente asociado al usuario autenticado.");
+        }
+        else if (!cliente.Activo)
+        {
+            ModelState.AddModelError(string.Empty, "El cliente no se encuentra activo y no puede registrar solicitudes.");
+        }
+        else if (await _context.SolicitudesCredito.AnyAsync(s => s.ClienteId == cliente.Id && s.Estado == EstadoSolicitud.Pendiente))
+        {
+            ModelState.AddModelError(string.Empty, "Ya existe una solicitud pendiente para este cliente.");
+        }
+
+        return View(new SolicitudRegistroViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(SolicitudRegistroViewModel model)
+    {
+        var usuarioId = _userManager.GetUserId(User);
+        if (usuarioId is null)
+        {
+            return Challenge();
+        }
+
+        var cliente = await _context.Clientes
+            .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+
+        if (cliente is null)
+        {
+            ModelState.AddModelError(string.Empty, "No existe un cliente asociado al usuario autenticado.");
+            return View(model);
+        }
+
+        if (!cliente.Activo)
+        {
+            ModelState.AddModelError(string.Empty, "El cliente no se encuentra activo y no puede registrar solicitudes.");
+        }
+
+        if (await _context.SolicitudesCredito.AnyAsync(s => s.ClienteId == cliente.Id && s.Estado == EstadoSolicitud.Pendiente))
+        {
+            ModelState.AddModelError(string.Empty, "No se permite registrar mas de una solicitud pendiente por cliente.");
+        }
+
+        var limite = cliente.IngresosMensuales * 10;
+        if (model.MontoSolicitado > limite)
+        {
+            ModelState.AddModelError(nameof(model.MontoSolicitado), $"El monto solicitado no puede superar 10 veces los ingresos mensuales del cliente ({limite:C}).");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var solicitud = new SolicitudCredito
+        {
+            ClienteId = cliente.Id,
+            MontoSolicitado = model.MontoSolicitado,
+            FechaSolicitud = DateTime.UtcNow,
+            Estado = EstadoSolicitud.Pendiente
+        };
+
+        _context.SolicitudesCredito.Add(solicitud);
+        await _context.SaveChangesAsync();
+
+        ViewBag.SuccessMessage = "La solicitud fue registrada correctamente en estado Pendiente.";
+        ModelState.Clear();
+        return View(new SolicitudRegistroViewModel());
+    }
 }
