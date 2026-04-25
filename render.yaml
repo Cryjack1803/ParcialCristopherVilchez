@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: parcial-vilchez-creditos
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:${PORT}
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Redis__ConnectionString
+        sync: false

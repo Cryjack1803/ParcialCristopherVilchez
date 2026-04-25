@@ -1,27 +1,30 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ParcialVilchezCristopher_</title>
+    <title>@ViewData["Title"] - Plataforma de Creditos</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ParcialVilchezCristopher_.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="app-shell">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ParcialVilchezCristopher_</a>
+        <nav class="navbar navbar-expand-lg app-navbar">
+            <div class="container app-container">
+                <a class="navbar-brand app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="app-brand-mark">PC</span>
+                    <span>Plataforma de Creditos</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 align-items-lg-center gap-lg-2">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link app-nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
@@ -31,27 +34,27 @@
                             @if (User.IsInRole("Analista"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Analista" asp-action="Index">Panel analista</a>
+                                    <a class="nav-link app-nav-link" asp-area="" asp-controller="Analista" asp-action="Index">Panel analista</a>
                                 </li>
                             }
                             else
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Index">Mis solicitudes</a>
+                                    <a class="nav-link app-nav-link" asp-area="" asp-controller="Solicitudes" asp-action="Index">Mis solicitudes</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Create">Nueva solicitud</a>
+                                    <a class="nav-link app-nav-link" asp-area="" asp-controller="Solicitudes" asp-action="Create">Nueva solicitud</a>
                                 </li>
                                 @if (ultimaSolicitudId.HasValue && !string.IsNullOrWhiteSpace(ultimaSolicitudMonto))
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Details" asp-route-id="@ultimaSolicitudId.Value">Ver ultima solicitud @ultimaSolicitudMonto</a>
+                                        <a class="nav-link app-nav-link app-nav-link-accent" asp-area="" asp-controller="Solicitudes" asp-action="Details" asp-route-id="@ultimaSolicitudId.Value">Ultima solicitud @ultimaSolicitudMonto</a>
                                     </li>
                                 }
                             }
                         }
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link app-nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -59,23 +62,24 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container app-container pb-4">
         @if (TempData["Success"] is string successMessage)
         {
-            <div class="alert alert-success">@successMessage</div>
+            <div class="alert alert-success app-alert">@successMessage</div>
         }
         @if (TempData["Error"] is string errorMessage)
         {
-            <div class="alert alert-danger">@errorMessage</div>
+            <div class="alert alert-danger app-alert">@errorMessage</div>
         }
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ParcialVilchezCristopher_ - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="footer app-footer text-muted">
+        <div class="container app-container d-flex flex-column flex-md-row justify-content-between gap-2">
+            <span>&copy; 2026 - Plataforma de Creditos</span>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">Politica de privacidad</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
