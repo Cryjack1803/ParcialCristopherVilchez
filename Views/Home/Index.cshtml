@@ -1,8 +1,90 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero-panel mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="hero-chip">Gestion interna de creditos</span>
+            <h1 class="hero-title mt-3">Solicitudes, evaluacion y seguimiento en una sola plataforma.</h1>
+            <p class="hero-copy mt-3">
+                Registra solicitudes de credito, filtra el historial del cliente, conserva la ultima operacion visitada y permite que el analista procese pendientes con reglas de negocio claras.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    @if (User.IsInRole("Analista"))
+                    {
+                        <a asp-controller="Analista" asp-action="Index" class="btn btn-hero-primary">Ir al panel analista</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Solicitudes" asp-action="Index" class="btn btn-hero-primary">Ver mis solicitudes</a>
+                        <a asp-controller="Solicitudes" asp-action="Create" class="btn btn-hero-secondary">Registrar nueva solicitud</a>
+                    }
+                }
+                else
+                {
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-hero-primary">Crear cuenta</a>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-hero-secondary">Iniciar sesion</a>
+                }
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="hero-stats-card">
+                <div class="hero-stat-row">
+                    <span class="hero-stat-label">Registro automatizado</span>
+                    <strong>Cliente + Identity</strong>
+                </div>
+                <div class="hero-stat-row">
+                    <span class="hero-stat-label">Cache por usuario</span>
+                    <strong>60 segundos</strong>
+                </div>
+                <div class="hero-stat-row">
+                    <span class="hero-stat-label">Perfil analista</span>
+                    <strong>Aprobacion y rechazo</strong>
+                </div>
+                <div class="hero-divider"></div>
+                <p class="mb-0 small text-muted">
+                    Usuario analista semilla: <strong>cristopher_vilchez@usmp.pe</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-md-4">
+        <article class="feature-card h-100">
+            <span class="feature-kicker">01</span>
+            <h2 class="h5 mt-3">Registro con perfil de cliente</h2>
+            <p class="mb-0">Cada usuario nuevo se registra con sus ingresos mensuales para poder operar de inmediato dentro del flujo de solicitudes.</p>
+        </article>
+    </div>
+    <div class="col-md-4">
+        <article class="feature-card h-100">
+            <span class="feature-kicker">02</span>
+            <h2 class="h5 mt-3">Seguimiento ordenado</h2>
+            <p class="mb-0">Los clientes pueden revisar estados, montos y fechas con filtros server-side y acceso rapido a la ultima solicitud consultada.</p>
+        </article>
+    </div>
+    <div class="col-md-4">
+        <article class="feature-card h-100">
+            <span class="feature-kicker">03</span>
+            <h2 class="h5 mt-3">Control analitico</h2>
+            <p class="mb-0">El analista procesa solo solicitudes pendientes y aplica las restricciones financieras definidas por el negocio.</p>
+        </article>
+    </div>
+</section>
+
+<section class="info-band">
+    <div class="row g-3 align-items-center">
+        <div class="col-lg-8">
+            <h2 class="h5 mb-2">Listo para despliegue en Render</h2>
+            <p class="mb-0 text-muted">La aplicacion ya tiene configuracion para entorno productivo con Redis opcional, Docker y guia de despliegue documentada.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline-dark">Ver informacion del sistema</a>
+        </div>
+    </div>
+</section>
