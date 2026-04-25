@@ -1,0 +1,58 @@
+@model List<SolicitudCredito>
+
+@{
+    ViewData["Title"] = "Panel analista";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Solicitudes pendientes</h1>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">No hay solicitudes pendientes por revisar.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Cliente</th>
+                    <th>Correo</th>
+                    <th>Ingresos</th>
+                    <th>Monto solicitado</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var solicitud in Model)
+            {
+                var excedeLimite = solicitud.MontoSolicitado > ((solicitud.Cliente?.IngresosMensuales ?? 0m) * 5);
+                <tr>
+                    <td>@solicitud.Id</td>
+                    <td>@solicitud.Cliente?.Usuario?.UserName</td>
+                    <td>@solicitud.Cliente?.Usuario?.Email</td>
+                    <td>@((solicitud.Cliente?.IngresosMensuales ?? 0m).ToString("C"))</td>
+                    <td>@solicitud.MontoSolicitado.ToString("C")</td>
+                    <td>@solicitud.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <form asp-action="Aprobar" asp-route-id="@solicitud.Id" method="post">
+                                <button type="submit" class="btn btn-success btn-sm" @(excedeLimite ? "disabled" : null)>Aprobar</button>
+                            </form>
+                            <a asp-action="Rechazar" asp-route-id="@solicitud.Id" class="btn btn-danger btn-sm">Rechazar</a>
+                        </div>
+                        @if (excedeLimite)
+                        {
+                            <div class="small text-danger mt-1">No aprobable: supera 5 veces los ingresos mensuales.</div>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
