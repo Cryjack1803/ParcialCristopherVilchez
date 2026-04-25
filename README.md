@@ -59,6 +59,7 @@ Semilla incluida:
   - Usuario: `Cristopher vilchz`
   - Email: `cristopher_vilchez@usmp.pe`
   - Password: `Analista@2026`
+  - Login: puedes ingresar con el correo o con el usuario
 
 - Cliente 1
   - Usuario: `cliente.uno`
