@@ -25,12 +25,21 @@
                         </li>
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
+                            var ultimaSolicitudId = Context.Session.GetInt32("UltimaSolicitudId");
+                            var ultimaSolicitudMonto = Context.Session.GetString("UltimaSolicitudMonto");
+
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Index">Mis solicitudes</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Create">Nueva solicitud</a>
                             </li>
+                            @if (ultimaSolicitudId.HasValue && !string.IsNullOrWhiteSpace(ultimaSolicitudMonto))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Details" asp-route-id="@ultimaSolicitudId.Value">Ver ultima solicitud @ultimaSolicitudMonto</a>
+                                </li>
+                            }
                         }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>

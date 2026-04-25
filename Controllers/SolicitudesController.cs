@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParcialVilchezCristopher_.Data;
 using ParcialVilchezCristopher_.Models;
+using ParcialVilchezCristopher_.Services;
 
 namespace ParcialVilchezCristopher_.Controllers;
 
@@ -11,12 +12,17 @@ namespace ParcialVilchezCristopher_.Controllers;
 public class SolicitudesController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly SolicitudesCacheService _solicitudesCache;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public SolicitudesController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+    public SolicitudesController(
+        ApplicationDbContext context,
+        UserManager<IdentityUser> userManager,
+        SolicitudesCacheService solicitudesCache)
     {
         _context = context;
         _userManager = userManager;
+        _solicitudesCache = solicitudesCache;
     }
 
     public async Task<IActionResult> Index(SolicitudFiltroViewModel filtro)
@@ -51,10 +57,20 @@ public class SolicitudesController : Controller
             return View(filtro);
         }
 
-        var query = _context.SolicitudesCredito
-            .AsNoTracking()
-            .Include(s => s.Cliente)
-            .Where(s => s.ClienteId == cliente.Id);
+        var solicitudes = await _solicitudesCache.GetSolicitudesAsync(usuarioId);
+        if (solicitudes is null)
+        {
+            solicitudes = await _context.SolicitudesCredito
+                .AsNoTracking()
+                .Include(s => s.Cliente)
+                .Where(s => s.ClienteId == cliente.Id)
+                .OrderByDescending(s => s.FechaSolicitud)
+                .ToListAsync();
+
+            await _solicitudesCache.SetSolicitudesAsync(usuarioId, solicitudes);
+        }
+
+        IEnumerable<SolicitudCredito> query = solicitudes;
 
         if (ModelState.IsValid)
         {
@@ -86,9 +102,9 @@ public class SolicitudesController : Controller
             }
         }
 
-        filtro.Solicitudes = await query
+        filtro.Solicitudes = query
             .OrderByDescending(s => s.FechaSolicitud)
-            .ToListAsync();
+            .ToList();
 
         return View(filtro);
     }
@@ -111,6 +127,9 @@ public class SolicitudesController : Controller
         {
             return NotFound();
         }
+
+        HttpContext.Session.SetInt32("UltimaSolicitudId", solicitud.Id);
+        HttpContext.Session.SetString("UltimaSolicitudMonto", solicitud.MontoSolicitado.ToString("F2"));
 
         return View(solicitud);
     }
@@ -194,6 +213,7 @@ public class SolicitudesController : Controller
 
         _context.SolicitudesCredito.Add(solicitud);
         await _context.SaveChangesAsync();
+        await _solicitudesCache.InvalidateSolicitudesAsync(usuarioId);
 
         ViewBag.SuccessMessage = "La solicitud fue registrada correctamente en estado Pendiente.";
         ModelState.Clear();
