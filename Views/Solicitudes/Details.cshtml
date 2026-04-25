@@ -1,0 +1,40 @@
+@model SolicitudCredito
+
+@{
+    ViewData["Title"] = "Detalle de solicitud";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Detalle de solicitud</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Id</dt>
+            <dd class="col-sm-8">@Model.Id</dd>
+
+            <dt class="col-sm-4">Cliente</dt>
+            <dd class="col-sm-8">@Model.Cliente?.Usuario?.UserName</dd>
+
+            <dt class="col-sm-4">Ingresos mensuales</dt>
+            <dd class="col-sm-8">@Model.Cliente?.IngresosMensuales.ToString("C")</dd>
+
+            <dt class="col-sm-4">Monto solicitado</dt>
+            <dd class="col-sm-8">@Model.MontoSolicitado.ToString("C")</dd>
+
+            <dt class="col-sm-4">Fecha solicitud</dt>
+            <dd class="col-sm-8">@Model.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">@Model.Estado</dd>
+
+            <dt class="col-sm-4">Motivo rechazo</dt>
+            <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.MotivoRechazo) ? "No aplica" : Model.MotivoRechazo)</dd>
+
+            <dt class="col-sm-4">Cliente activo</dt>
+            <dd class="col-sm-8">@(Model.Cliente?.Activo == true ? "Sí" : "No")</dd>
+        </dl>
+    </div>
+</div>
