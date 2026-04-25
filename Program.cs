@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ParcialVilchezCristopher_.Data;
+using ParcialVilchezCristopher_.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,31 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+var redisConnectionString = builder.Configuration["Redis:ConnectionString"]
+    ?? builder.Configuration["Redis__ConnectionString"];
+
+if (string.IsNullOrWhiteSpace(redisConnectionString))
+{
+    builder.Services.AddDistributedMemoryCache();
+}
+else
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisConnectionString;
+        options.InstanceName = "ParcialVilchezCristopher_";
+    });
+}
+
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
+builder.Services.AddScoped<SolicitudesCacheService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -40,6 +66,7 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
