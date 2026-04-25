@@ -62,7 +62,6 @@ public class SolicitudesController : Controller
         {
             solicitudes = await _context.SolicitudesCredito
                 .AsNoTracking()
-                .Include(s => s.Cliente)
                 .Where(s => s.ClienteId == cliente.Id)
                 .OrderByDescending(s => s.FechaSolicitud)
                 .ToListAsync();

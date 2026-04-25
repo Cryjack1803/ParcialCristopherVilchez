@@ -20,24 +20,43 @@ public class SolicitudesCacheService
 
     public async Task<List<SolicitudCredito>?> GetSolicitudesAsync(string usuarioId)
     {
-        var cached = await _cache.GetStringAsync(GetKey(usuarioId));
-        if (string.IsNullOrWhiteSpace(cached))
+        try
+        {
+            var cached = await _cache.GetStringAsync(GetKey(usuarioId));
+            if (string.IsNullOrWhiteSpace(cached))
+            {
+                return null;
+            }
+
+            return JsonSerializer.Deserialize<List<SolicitudCredito>>(cached);
+        }
+        catch
         {
             return null;
         }
-
-        return JsonSerializer.Deserialize<List<SolicitudCredito>>(cached);
     }
 
-    public Task SetSolicitudesAsync(string usuarioId, List<SolicitudCredito> solicitudes)
+    public async Task SetSolicitudesAsync(string usuarioId, List<SolicitudCredito> solicitudes)
     {
-        var payload = JsonSerializer.Serialize(solicitudes);
-        return _cache.SetStringAsync(GetKey(usuarioId), payload, CacheOptions);
+        try
+        {
+            var payload = JsonSerializer.Serialize(solicitudes);
+            await _cache.SetStringAsync(GetKey(usuarioId), payload, CacheOptions);
+        }
+        catch
+        {
+        }
     }
 
-    public Task InvalidateSolicitudesAsync(string usuarioId)
+    public async Task InvalidateSolicitudesAsync(string usuarioId)
     {
-        return _cache.RemoveAsync(GetKey(usuarioId));
+        try
+        {
+            await _cache.RemoveAsync(GetKey(usuarioId));
+        }
+        catch
+        {
+        }
     }
 
     private static string GetKey(string usuarioId)
